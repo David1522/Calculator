@@ -1,97 +1,91 @@
-const operators = ['%', '/', '*', '+', '-'];
-const operationContainer = document.getElementById('operation');
+const operatorsArray = {
+  '%' : function (a, b) {return a % b},
+  '/' : function (a, b) {return a / b},
+  'X' : function (a, b) {return a * b},
+  '+' : function (a, b) {return a + b},
+  '-' : function (a, b) {return a - b}
+};
 const stageContainer = document.getElementById('stage');
-const equal = document.getElementById('equal-btn');
-equal.addEventListener('click', () => {checkOperation()});
-
-const numberBtn = document.querySelectorAll('.num-btn');
-numberBtn.forEach((btn) => {
-  btn.addEventListener('click', (e) => {
-    switchNumDeclaration === false ? numDeclaration(e.target.innerText, 0) : numDeclaration(e.target.innerText, 1);
-  });
-});
-
-const operatorBtn = document.querySelectorAll('.operation-btn');
-operatorBtn.forEach((btn) => {btn.addEventListener('click', (e) => {concatenate(e.target.innerText)})});
-
+const inputContainer = document.getElementById('input');
+const clearButton = document.querySelectorAll('.special-btn');
+const numberButton = document.querySelectorAll('.num-btn');
+const operatorButton = document.querySelectorAll('.operation-btn');
+const equalButton = document.getElementById('equal-btn');
 
 let firstNum = "";
 let secondNum = "";
 let operator = "";
-let switchNumDeclaration = false;
-let operation = "";
+let switchDeclaration = false;
 
-function concatenate (btnClicked) {
-  console.log(firstNum);
-  if (switchNumDeclaration === false) {
-    if (firstNum) {
-      operator = btnClicked;
-      stageContainer.innerText = `${firstNum} ${btnClicked}`;
-      operationContainer.innerText = "";
-      switchNumDeclaration = true;
-    } else {
-      operationContainer.innerHTML = '<p class="alert">Please enter a digit first</p>';
-    }
-  } else {
-    checkOperation()
-    operate();
-  }
-}
+numberButton.forEach((btn) => {
+  btn.addEventListener('click', (e) => {
+    switchDeclaration === false ? numDeclaration(e.target.innerText, 0) : numDeclaration(e.target.innerText, 1);
+  });
+});
+
+operatorButton.forEach((btn) => {btn.addEventListener('click', (e) => {concatenate(e.target.innerText)})});
+
+equalButton.addEventListener('click', () => {checkOperation()});
+
+clearButton.forEach((btn) => {
+  btn.addEventListener('click', (e) => {
+    e.target.innerText == "C" ? goBack(switchDeclaration) : clearCalculator();
+  });
+});
 
 function numDeclaration (character, num) {
   if (num === 0) {
     firstNum += character;
-    operationContainer.innerText = `${firstNum}`;
-    console.log(firstNum);
+    inputContainer.innerText = `${firstNum}`;
   } else {
     secondNum += character;
-    operationContainer.innerText = `${secondNum}`;
+    inputContainer.innerText = `${secondNum}`;
+  }
+}
+
+function concatenate (btnClicked) {
+  if (switchDeclaration === false) {
+    if (firstNum) {
+      operator = btnClicked;
+      stageContainer.innerText = `${firstNum} ${btnClicked}`;
+      inputContainer.innerText = "";
+      switchDeclaration = true;
+    } else {
+      inputContainer.innerHTML = '<p class="alert">Please enter a digit first</p>';
+    }
+  } else {
+    checkOperation();
   }
 }
 
 function checkOperation () {
-  console.log('checkOperation function called');
   if (secondNum) {
-    operate();
+    stageContainer.innerText += ` ${secondNum} =`;
+    calculate();
   } else {
-    operationContainer.innerHTML = '<p class="alert">Please enter a digit first</p>';
+    inputContainer.innerHTML = '<p class="alert">Please enter a digit first</p>';
   }
 }
 
-function operate () {
-  console.log('operate function called', typeof(operator));
+function calculate () {
+  const output = operatorsArray[operator](Number(firstNum), Number(secondNum));
+  inputContainer.innerText = `${output}`;
+  firstNum = output.toString();
+  secondNum = "";
+  operator = "";
+  switchDeclaration = false;
+}
 
-  if (operator == '+') {
-    const output = parseInt(firstNum) + parseInt(secondNum);
-    operationContainer.innerText = `${output}`;
-    firstNum = String.toString(output);
-    operator = "";
-    secondNum = "";
-  } else if (operator == '-') {
-    const output = parseInt(firstNum) - parseInt(secondNum);
-    operationContainer.innerText = `${output}`;
-    firstNum = String.toString(output);
-    operator = "";
-    secondNum = "";
-  } else if (operator == 'X') {
-    const output = parseInt(firstNum) * parseInt(secondNum);
-    operationContainer.innerText = `${output}`;
-    firstNum = String.toString(output);
-    operator = "";
-    secondNum = "";
-  } else if (operator == '/') {
-    const output = parseInt(firstNum) / parseInt(secondNum);
-    operationContainer.innerText = `${output}`;
-    firstNum = String.toString(output);
-    operator = "";
-    secondNum = "";
-    console.log('Completed!')
-  } else if (operator == '%') {
-    const output = parseInt(firstNum) % parseInt(secondNum);
-    operationContainer.innerText = `${output}`;
-    firstNum = String.toString(output);
-    operator = "";
-    secondNum = "";
-    console.log('Completed!')
-  }
+function goBack (conditional) {
+  conditional === false ? firstNum = firstNum.slice(0, -1) : secondNum = secondNum.slice(0, -1);
+  inputContainer.innerText = (inputContainer.innerText).slice(0, -1)
+}
+
+function clearCalculator () {
+  inputContainer.innerText = "0";
+  stageContainer.innerText = "";
+  firstNum = "";
+  secondNum = "";
+  operator = "";
+  switchDeclaration = false;
 }
