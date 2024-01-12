@@ -5,10 +5,13 @@ const operatorsArray = {
   '+' : function (a, b) {return a + b},
   '-' : function (a, b) {return a - b}
 };
+const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'];
+const operatorsPad = ['+', '-', '*', '/', '%'];
 const stageContainer = document.getElementById('stage');
 const inputContainer = document.getElementById('input');
 const clearButton = document.querySelectorAll('.special-btn');
 const numberButton = document.querySelectorAll('.num-btn');
+const pointButton = document.getElementById('point');
 const operatorButton = document.querySelectorAll('.operation-btn');
 const equalButton = document.getElementById('equal-btn');
 
@@ -33,23 +36,67 @@ clearButton.forEach((btn) => {
   });
 });
 
+window.addEventListener('keyup', (e) => {
+  console.log(e);
+
+  for (let i = 0; i < numbers.length; i++) {
+    if (e.key.includes(numbers[i])) {
+      switchDeclaration === false ? numDeclaration(e.key, 0) : numDeclaration(e.key, 1);
+    }
+  }
+
+  for (let i = 0; i < operatorsPad.length; i++) {
+    if (e.key.includes(operatorsPad[i])) {
+      e.key === "*" ? concatenate('X') : concatenate(e.key);
+    }
+  }
+
+  if (e.key == 'Enter') {
+    checkOperation()
+  }
+
+  if (e.key == 'Backspace') {
+    goBack(switchDeclaration)
+  }
+
+  if (e.key == 'c') {
+    clearCalculator()
+  }
+})
+
 function numDeclaration (character, num) {
+  let decimal = false;
+
+  if (character == ".") {
+    pointButton.disabled = true;
+    decimal = true;
+  } 
+
   if (num === 0) {
-    firstNum += character;
+    if (decimal == true && firstNum.length == 0) {
+      firstNum = "0.";
+    } else {
+      firstNum += character;
+    }
     inputContainer.innerText = `${firstNum}`;
   } else {
-    secondNum += character;
+    if (decimal == true && secondNum.length == 0) {
+      secondNum = "0.";
+    } else {
+      secondNum += character;
+    }
     inputContainer.innerText = `${secondNum}`;
   }
 }
 
-function concatenate (btnClicked) {
+function concatenate(btnClicked) {
   if (switchDeclaration === false) {
     if (firstNum) {
       operator = btnClicked;
       stageContainer.innerText = `${firstNum} ${btnClicked}`;
       inputContainer.innerText = "";
       switchDeclaration = true;
+      pointButton.disabled = false;
     } else {
       inputContainer.innerHTML = '<p class="alert">Please enter a digit first</p>';
     }
